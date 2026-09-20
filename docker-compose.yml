@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: gestioncaisse-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: GestionCaisse
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend/GestionCaisse
+    container_name: gestioncaisse-backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/GestionCaisse
+    ports:
+      - "8081:8080"
+
+  frontend:
+    build: ./frontend
+    container_name: gestioncaisse-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+
+volumes:
+  postgres_data:
